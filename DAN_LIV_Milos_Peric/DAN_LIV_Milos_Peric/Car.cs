@@ -15,6 +15,7 @@ namespace DAN_LIV_Milos_Peric
         private static readonly object lockObj = new object();
         private static readonly object lockObj2 = new object();
         private static readonly object lockObj3 = new object();
+        private static readonly object lockObj4 = new object();
         private static System.Timers.Timer raceTimer = new System.Timers.Timer();
         private static System.Timers.Timer semaphoreTimer = new System.Timers.Timer();
         private static System.Timers.Timer fuelTimer = new System.Timers.Timer();
@@ -28,6 +29,7 @@ namespace DAN_LIV_Milos_Peric
         private static Dictionary<string, Car> racingCars = new Dictionary<string, Car>();
         private static int ranOutFuelCounter = 0;
         private static int firstPlaceCounter = 0;
+        private static int outOfFuelCounter = 0;
         public string RegistrationNumber { get; set; }
         public int NumberOfDoors { get; set; }
         public int FuelTankCapacity { get; set; }
@@ -92,7 +94,7 @@ namespace DAN_LIV_Milos_Peric
                 Refuel();
             }
             carSynchronizationSemaphore4.Wait();
-            lock (lockObj)
+            lock (lockObj4)
             {
                 RemoveOutOfFuelCarFromRace();
             }
@@ -157,6 +159,11 @@ namespace DAN_LIV_Milos_Peric
                 {
                     if (item.Key == Thread.CurrentThread.Name && item.Value.FuelTankCapacity <= 0)
                     {
+                        outOfFuelCounter++;
+                        if (outOfFuelCounter == 3)
+                        {
+                            Console.WriteLine($"No car has reached the finish line.");
+                        }
                         Console.WriteLine($"{Thread.CurrentThread.Name} is out of fuel and is out of race.");
                         Thread.Sleep(Timeout.Infinite);
                     }
